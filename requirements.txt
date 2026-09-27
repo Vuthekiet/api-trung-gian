@@ -1,5 +1,0 @@
-flask
-gunicorn
-python-telegram-bot
-nest-asyncio
-requests
