@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_GOC = 'https://ent-glenn-terrain-project.trycloudflare.com/sicbo/sunwin';
+const API_GOC = 'https://ent-glenn-terrain-project.trycloudflare.com/sicbo/hitclub';
 
 // Bộ nhớ lưu 100 phiên gần nhất
 let historyData = [];
