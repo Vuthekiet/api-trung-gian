@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_GOC = 'https://ent-glenn-terrain-project.trycloudflare.com/sicbo/hitclub';
 
-// Bộ nhớ lưu 100 phiên gần nhất
+// Bộ nhớ lưu 1000 phiên gần nhất
 let historyData = [];
 
 async function fetchAndSaveData() {
@@ -24,8 +24,8 @@ async function fetchAndSaveData() {
       // Đưa phiên mới lên đầu mảng
       historyData.unshift(data);
 
-      // Giữ đúng 100 phiên (xóa bớt phiên cũ ở cuối)
-      if (historyData.length > 100) {
+      // Giữ đúng 1000 phiên (xóa bớt phiên cũ ở cuối)
+      if (historyData.length > 1000) {
         historyData.pop();
       }
     }
@@ -37,7 +37,7 @@ async function fetchAndSaveData() {
 // Chạy quét 3 giây/lần
 setInterval(fetchAndSaveData, 3000);
 
-// API 1: Lấy danh sách 100 phiên gần nhất
+// API 1: Lấy danh sách 1000 phiên gần nhất
 app.get('/sicbo/sunwin/history', (req, res) => {
   res.json({
     success: true,
