@@ -38,7 +38,7 @@ async function fetchAndSaveData() {
 setInterval(fetchAndSaveData, 3000);
 
 // API 1: Lấy danh sách 1000 phiên gần nhất
-app.get('/sicbo/sunwin/history', (req, res) => {
+app.get('/txmd5/sunwin/history', (req, res) => {
   res.json({
     success: true,
     total: historyData.length,
@@ -47,7 +47,7 @@ app.get('/sicbo/sunwin/history', (req, res) => {
 });
 
 // API 2: Lấy phiên mới nhất
-app.get('/sicbo/sunwin/latest', (req, res) => {
+app.get('/txmd5/sunwin/latest', (req, res) => {
   res.json({
     success: true,
     data: historyData[0] || null
