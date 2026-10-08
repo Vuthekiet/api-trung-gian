@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const API_GOC = 'https://gossip-marriage-anime-variance.trycloudflare.com/api/txmd5';
+const API_GOC = 'https://reviewed-ssl-tradition-specialized.trycloudflare.com/api/tx';
 
 let historyData = [];
 let lastRawResponse = null; // Lưu lại dữ liệu thô gần nhất để debug
