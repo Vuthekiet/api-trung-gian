@@ -4,11 +4,10 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const API_GOC = 'https://wtxmd52.tele68.com/v1/txmd5/sessions';
+// Thay link API gốc của bạn vào đây (link cloudflare hoặc link trực tiếp từ tele68)
+const API_GOC = 'https://gossip-marriage-anime-variance.trycloudflare.com/api/txmd5';
 
 let historyData = [];
-let lastRawResponse = null; // Lưu lại dữ liệu thô gần nhất để debug
-let lastError = null;       // Lưu lại lỗi gần nhất
 
 async function fetchAndSaveData() {
   try {
@@ -20,43 +19,64 @@ async function fetchAndSaveData() {
       }
     });
 
-    lastRawResponse = response.data; // Lưu lại dữ liệu thô
-    lastError = null;
+    const resData = response.data;
+    if (!resData) return;
 
-    // Tự động nhận diện trường dữ liệu (phien / session / id)
-    let item = response.data;
-    if (response.data && response.data.data) {
-      item = response.data.data;
+    // Lấy danh sách phiên từ trường "list" hoặc "data"
+    let items = [];
+    if (Array.isArray(resData.list)) {
+      items = resData.list;
+    } else if (Array.isArray(resData.data)) {
+      items = resData.data;
+    } else if (Array.isArray(resData)) {
+      items = resData;
+    } else if (resData.data) {
+      items = [resData.data];
     }
 
-    // Lấy mã phiên (hỗ trợ cả phien, session, id)
-    const phienId = item.phien || item.session || item.session_id || item.id;
+    let addedCount = 0;
 
-    if (phienId) {
+    // Quét từng phiên trong danh sách trả về
+    for (const item of items) {
+      const sessionId = item.id || item._id || item.phien;
+      if (!sessionId) continue;
+
+      // Kiểm tra trùng lặp
       const exists = historyData.some(entry => {
-        const currentId = entry.phien || entry.session || entry.session_id || entry.id;
-        return currentId === phienId;
+        const entryId = entry.id || entry._id || entry.phien;
+        return entryId === sessionId;
       });
 
       if (!exists) {
-        console.log(`[+] Đã lưu phiên mới: #${phienId}`);
-        historyData.unshift(item);
-
-        if (historyData.length > 1000) {
-          historyData.pop();
-        }
+        historyData.push(item);
+        addedCount++;
       }
     }
+
+    if (addedCount > 0) {
+      // Sắp xếp phiên mới nhất (id lớn nhất) lên đầu
+      historyData.sort((a, b) => {
+        const idA = Number(a.id || a.phien) || 0;
+        const idB = Number(b.id || b.phien) || 0;
+        return idB - idA;
+      });
+
+      // Giữ tối đa 1000 phiên gần nhất
+      if (historyData.length > 1000) {
+        historyData = historyData.slice(0, 1000);
+      }
+
+      console.log(`[+] Đã nạp thêm ${addedCount} phiên mới! Tổng hiện có: ${historyData.length}`);
+    }
   } catch (error) {
-    lastError = error.message;
-    console.log('Lỗi kết nối API gốc:', error.message);
+    console.log('Chờ kết nối API gốc:', error.message);
   }
 }
 
-// Quét 3 giây/lần
+// Quét 3 giây / lần
 setInterval(fetchAndSaveData, 3000);
 
-// API Lịch sử 1000 phiên
+// API 1: Xem toàn bộ lịch sử (tối đa 1000 phiên)
 app.get('/api/txmd5/history', (req, res) => {
   res.json({
     success: true,
@@ -65,7 +85,7 @@ app.get('/api/txmd5/history', (req, res) => {
   });
 });
 
-// API Phiên mới nhất
+// API 2: Xem duy nhất phiên mới nhất
 app.get('/api/txmd5/latest', (req, res) => {
   res.json({
     success: true,
@@ -73,16 +93,8 @@ app.get('/api/txmd5/latest', (req, res) => {
   });
 });
 
-// ROUTE DEBUG: Xem dữ liệu thô API gốc trả về cho Render
-app.get('/debug', (req, res) => {
-  res.json({
-    last_error: lastError,
-    raw_response_from_api_goc: lastRawResponse
-  });
-});
-
 app.get('/', (req, res) => {
-  res.send('API Trung Gian TXMD5 đang chạy!');
+  res.send('API Trung Gian TXMD5 đang hoạt động 24/7!');
 });
 
 app.listen(PORT, () => {
