@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Thay link API gốc của bạn vào đây (link cloudflare hoặc link trực tiếp từ tele68)
-const API_GOC = 'https://gossip-marriage-anime-variance.trycloudflare.com/api/txmd5';
+const API_GOC = 'https://wtxmd52.tele68.com/v1/txmd5/sessions';
 
 let historyData = [];
 
